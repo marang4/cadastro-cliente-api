@@ -44,26 +44,26 @@ public class EnderecosService {
 
 
         public Enderecos criarEndereco(Enderecos endereco) throws NumeroMaximoDeCadastros {
-        // 1. Verifica se o cliente está presente
+
         if (endereco.getCliente() == null || endereco.getCliente().getId() == null) {
             throw new RuntimeException("ID do cliente é obrigatório!");
         }
 
-        // 2. Buscar o cliente pelo ID
+
         Long idCliente = endereco.getCliente().getId();
         Clientes cliente = clientesRepository.findById(idCliente)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado!"));
 
-        // 3. Verificar quantos endereços o cliente já tem
+
         long quantidadeEnderecos = enderecosRepository.countByCliente(cliente);
         if (quantidadeEnderecos >= 3) {
             throw new NumeroMaximoDeCadastros("O cliente já possui o limite de 3 endereços cadastrados.");
         }
 
-        // 4. Associar o cliente ao endereço
+
         endereco.setCliente(cliente);
 
-        // 5. Salvar o endereço
+
         return enderecosRepository.save(endereco);
 
     }

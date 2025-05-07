@@ -1,8 +1,6 @@
 package br.com.senac.cadastro_clientes_api.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -35,6 +33,9 @@ public class Enderecos {
     @JoinColumn(name = "clientes_id", updatable = false)
     @JsonBackReference
     private Clientes cliente;
+
+
+
 
     public Clientes getCliente() {
         return cliente;
