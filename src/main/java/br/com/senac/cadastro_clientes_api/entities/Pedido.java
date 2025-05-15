@@ -1,11 +1,11 @@
 package br.com.senac.cadastro_clientes_api.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import org.hibernate.annotations.processing.Pattern;
 
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Pedido {
@@ -19,12 +19,22 @@ public class Pedido {
     private double valorTotal;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id")
     private Clientes cliente;
 
     @ManyToOne
-    @JoinColumn(name = "endereco_id")
     private Enderecos endereco;
+
+    @OneToMany(mappedBy = "pedido")
+    @JsonManagedReference
+    private List<PedidoItem> itens;
+
+    public List<PedidoItem> getItens() {
+        return itens;
+    }
+
+    public void setItens(List<PedidoItem> itens) {
+        this.itens = itens;
+    }
 
     public Clientes getCliente() {
         return cliente;

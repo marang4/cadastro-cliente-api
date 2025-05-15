@@ -1,6 +1,7 @@
 package br.com.senac.cadastro_clientes_api.services;
 
 
+import br.com.senac.cadastro_clientes_api.controllers.dtos.EnderecosRequest;
 import br.com.senac.cadastro_clientes_api.entities.Clientes;
 import br.com.senac.cadastro_clientes_api.entities.Enderecos;
 import br.com.senac.cadastro_clientes_api.exceptions.NumeroMaximoDeCadastros;
@@ -10,6 +11,7 @@ import br.com.senac.cadastro_clientes_api.repository.EnderecosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -94,6 +96,36 @@ public class EnderecosService {
 
 
         enderecosRepository.deleteById(id);
+    }
+
+
+    //recebe um endereço e uma lsita de clientes
+    public List<Enderecos> criarEnderecos(Clientes cliente, List<EnderecosRequest> enderecos ) throws RegistroNaoEncontrado, NumeroMaximoDeCadastros {
+
+
+        //criar um array de endereços para retornar
+        List<Enderecos> saida = new ArrayList<>();
+
+
+        //percorrer o objeto, convertendo endereço request para endereços para gravar no bd
+        for (EnderecosRequest endereco : enderecos) {
+            Enderecos enderecoPersist = new Enderecos();
+
+            enderecoPersist.setBairro(endereco.getBairro());
+            enderecoPersist.setCep(endereco.getCep());
+            enderecoPersist.setCidade(endereco.getCidade());
+            enderecoPersist.setLogradouro(endereco.getLogradouro());
+            enderecoPersist.setEstado(endereco.getEstado());
+            enderecoPersist.setNumero(endereco.getNumero());
+            enderecoPersist.setCliente(cliente);
+
+            //joga na lista para serem gravados no bacno
+            saida.add(this.criarEndereco(enderecoPersist));
+
+        }
+
+        return saida;
+
     }
 
 

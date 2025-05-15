@@ -1,5 +1,6 @@
 package br.com.senac.cadastro_clientes_api.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,12 +14,14 @@ public class PedidoItem {
 
     private double valorUnitario;
 
+
+
     @ManyToOne
     @JoinColumn(name = "pedido_id")
+    @JsonBackReference
     private Pedido pedido;
 
     @ManyToOne
-    @JoinColumn(name = "produto_id")
     private Produto produto;
 
 

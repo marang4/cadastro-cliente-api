@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static br.com.senac.cadastro_clientes_api.utils.ValidacoesUtil.validarSeRegistroExiste;
+
 @Service
 public class ProdutoService {
 
@@ -38,9 +40,7 @@ public class ProdutoService {
 
 
     public void excluirProduto(Long id) throws RegistroNaoEncontrado {
-        if(!produtoRepository.existsById(id)){
-            throw new RegistroNaoEncontrado("Produto não encontrado");
-        }
+        validarSeRegistroExiste(produtoRepository, id);
         produtoRepository.deleteById(id);
     }
 

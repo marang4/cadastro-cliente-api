@@ -11,6 +11,11 @@ import br.com.senac.cadastro_clientes_api.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
+import static br.com.senac.cadastro_clientes_api.utils.ValidacoesUtil.validarSeRegistroExiste;
+
 @Service
 public class PedidoService {
 
@@ -23,20 +28,39 @@ public class PedidoService {
 
     public Pedido cadastrarPedido(Pedido pedido) throws RegistroNaoEncontrado {
 
-        Long clienteId = pedido.getCliente().getId();
-        Long enderecoId = pedido.getEndereco().getId();
+//        Long clienteId = pedido.getCliente().getId();
+//        Long enderecoId = pedido.getEndereco().getId();
+//
+//        Clientes cliente = clientesRepository.findById(clienteId)
+//                .orElseThrow(() -> new RegistroNaoEncontrado("Cliente nao encontrado"));
+//
+//        Enderecos endereco = enderecosRepository.findById(enderecoId)
+//                .orElseThrow(() -> new RegistroNaoEncontrado("Endere;co noa encontrado"));
+//
+//
+//        if (!endereco.getCliente().getId().equals(cliente.getId())) {
+//            throw  new RegistroNaoEncontrado("o endereço pertence a outro cliente");
+//        }
+//
+//
+//        return pedidoRepository.save(pedido);
 
-        Clientes cliente = clientesRepository.findById(clienteId)
-                .orElseThrow(() -> new RegistroNaoEncontrado("Cliente nao encontrado"));
-
-        Enderecos endereco = enderecosRepository.findById(enderecoId)
-                .orElseThrow(() -> new RegistroNaoEncontrado("Endere;co noa encontrado"));
-
-
-        if (!endereco.getCliente().getId().equals(cliente.getId())) {
-            throw  new RegistroNaoEncontrado("o endereço pertence a outro cliente");
+        if (pedido.getCliente() == null){
+            throw new RegistroNaoEncontrado("Cliente nao informado");
         }
 
+        Optional<Enderecos> resultEndereco = enderecosRepository.findById(pedido.getEndereco().getId());
+        if (resultEndereco.isEmpty()) {
+            throw new RegistroNaoEncontrado("Endereço noa existe");
+        }
+
+        Clientes clienteResult = resultEndereco.get().getCliente();
+
+        if(clienteResult.getId() != pedido.getCliente().getId()){
+            throw new RegistroNaoEncontrado("Cliente nao existe");
+        }
+
+        pedido.setId(null);
 
         return pedidoRepository.save(pedido);
 
@@ -44,37 +68,72 @@ public class PedidoService {
 
 
     public Pedido atualizarPedido(Long id, Pedido pedido) throws RegistroNaoEncontrado, PertenceAOutroCliente {
-        Pedido pedidoResult = pedidoRepository.findById(id)
-                .orElseThrow(() -> new RegistroNaoEncontrado("Pedido nao encontrado"));
+//        Pedido pedidoResult = pedidoRepository.findById(id)
+//                .orElseThrow(() -> new RegistroNaoEncontrado("Pedido nao encontrado"));
+//
+//        Long enderecoId = pedido.getEndereco().getId();
+//        Long clienteId = pedido.getCliente().getId();
+//
+//        Clientes cliente = clientesRepository.findById(clienteId)
+//                .orElseThrow(() -> new RegistroNaoEncontrado("Cliente nao encontrado"));
+//
+//
+//
+//
+//        if (pedidoResult.getCliente() == null) {
+//            pedidoResult.setCliente(cliente);
+//        } else if (!pedidoResult.getCliente().getId().equals(clienteId)) {
+//            throw new RegistroNaoEncontrado("nao é possivel alterar o cliente");
+//        }
+//
+//
+//
+//        Enderecos novoEndereco = enderecosRepository.findById(enderecoId)
+//                .orElseThrow(() -> new RegistroNaoEncontrado("Endereço nao encontrao"));
+//
+//        if (!novoEndereco.getCliente().getId().equals(clienteId)) {
+//            throw new PertenceAOutroCliente("Endereço nao pertence ao cliente informado");
+//        }
+//
+//        pedidoResult.setId(id);
+//        pedidoResult.setEndereco(novoEndereco);
+//
+//        return pedidoRepository.save(pedidoResult);
 
-        Long enderecoId = pedido.getEndereco().getId();
-        Long clienteId = pedido.getCliente().getId();
 
-        Clientes cliente = clientesRepository.findById(clienteId)
-                .orElseThrow(() -> new RegistroNaoEncontrado("Cliente nao encontrado"));
-
-
-
-
-        if (pedidoResult.getCliente() == null) {
-            pedidoResult.setCliente(cliente);
-        } else if (!pedidoResult.getCliente().getId().equals(clienteId)) {
-            throw new RegistroNaoEncontrado("nao é possivel alterar o cliente");
+        Optional<Pedido> pedidoResult = pedidoRepository.findById(id);
+        if (pedidoResult.isEmpty()) {
+            throw new RegistroNaoEncontrado("Pedido nao encontrado");
         }
 
-
-
-        Enderecos novoEndereco = enderecosRepository.findById(enderecoId)
-                .orElseThrow(() -> new RegistroNaoEncontrado("Endereço nao encontrao"));
-
-        if (!novoEndereco.getCliente().getId().equals(clienteId)) {
-            throw new PertenceAOutroCliente("Endereço nao pertence ao cliente informado");
+        Optional<Enderecos> enderecoResult = enderecosRepository.findById(pedido.getEndereco().getId());
+        if(enderecoResult.isEmpty()) {
+            throw new RegistroNaoEncontrado("Endereço nao existe");
         }
 
-        pedidoResult.setId(id);
-        pedidoResult.setEndereco(novoEndereco);
+        if(pedidoResult.get().getCliente().getId() != enderecoResult.get().getCliente().getId()){
+            throw new RegistroNaoEncontrado("Endereço não eiste");
+        }
 
-        return pedidoRepository.save(pedidoResult);
+        return pedidoRepository.findById(id).map(record -> {
+            record.setEndereco(pedido.getEndereco());
+            record.setValorTotal(pedido.getValorTotal());
+
+            return pedidoRepository.save(record);
+        }).get();
+
+
+    }
+
+    public List<Pedido> carregar() {
+        List<Pedido> pedidoResult = pedidoRepository.findAll();
+        return pedidoResult;
+    }
+
+    public void excluir(Long id) throws RegistroNaoEncontrado {
+        validarSeRegistroExiste(pedidoRepository, id);
+
+        pedidoRepository.deleteById(id);
     }
 
 

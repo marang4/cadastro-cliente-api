@@ -10,11 +10,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/pedido-item")
+@RequestMapping("/pedidoItem")
 public class PedidoItemController {
 
     @Autowired
     private PedidoItemService pedidoItemService;
+
+
+    @GetMapping("/listar")
+    public ResponseEntity<?> listarPedidoItem(){
+        try{
+            return ResponseEntity.ok(pedidoItemService.carregar());
+        }catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage() != null ? e.getMessage() : e.getCause().getMessage());
+        }
+    }
+
 
 
     @PostMapping("/criar")
@@ -43,5 +55,15 @@ public class PedidoItemController {
         }
     }
 
+    @DeleteMapping("/excluir")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        try {
+            pedidoItemService.excluir(id);
+
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 
 }

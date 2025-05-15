@@ -16,6 +16,19 @@ public class PedidoController {
     @Autowired
     private PedidoService pedidoService;
 
+
+    @GetMapping("/listar")
+    public ResponseEntity<?> listarPedidos(){
+        try{
+            return ResponseEntity.ok(pedidoService.carregar());
+        }catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage() != null ? e.getMessage() : e.getCause().getMessage());
+        }
+
+    }
+
+
     @PostMapping("/criar")
     public ResponseEntity<?> criarPedido(@RequestBody Pedido pedido) throws RegistroNaoEncontrado {
         try {
@@ -40,6 +53,17 @@ public class PedidoController {
         }catch (PertenceAOutroCliente e) {
             e.printStackTrace();
             return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/excluir")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        try {
+            pedidoService.excluir(id);
+
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 

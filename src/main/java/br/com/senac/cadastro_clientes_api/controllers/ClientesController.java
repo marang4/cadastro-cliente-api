@@ -1,5 +1,6 @@
 package br.com.senac.cadastro_clientes_api.controllers;
 
+import br.com.senac.cadastro_clientes_api.controllers.dtos.ClientesRequest;
 import br.com.senac.cadastro_clientes_api.entities.Clientes;
 import br.com.senac.cadastro_clientes_api.services.ClientesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,22 @@ public class ClientesController {
         }catch (Exception e ) {
             return ResponseEntity.badRequest().body(null);
         }
+    }
+
+    @PostMapping("/completo/criar")
+    public ResponseEntity<?> criarClienteCompleto(@RequestBody ClientesRequest cliente) {
+
+        try {
+
+            return ResponseEntity.created(null).body(clientesService.criarClienteCompleto(cliente));
+
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+
     }
 
 
