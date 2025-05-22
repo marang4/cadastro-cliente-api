@@ -1,9 +1,11 @@
 package br.com.senac.cadastro_clientes_api.controllers;
 
+import br.com.senac.cadastro_clientes_api.controllers.dtos.PedidoItensRequest;
 import br.com.senac.cadastro_clientes_api.entities.PedidoItem;
 import br.com.senac.cadastro_clientes_api.exceptions.NaoFoiPossivelAlterar;
 import br.com.senac.cadastro_clientes_api.exceptions.RegistroNaoEncontrado;
 import br.com.senac.cadastro_clientes_api.services.PedidoItemService;
+import br.com.senac.cadastro_clientes_api.services.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,6 +17,9 @@ public class PedidoItemController {
 
     @Autowired
     private PedidoItemService pedidoItemService;
+
+    @Autowired
+    private PedidoService pedidoService;
 
 
     @GetMapping("/listar")
@@ -66,4 +71,18 @@ public class PedidoItemController {
         }
     }
 
+
+    @PostMapping("/completo/criar")
+    public ResponseEntity<?> criarCompleto(@RequestBody PedidoItensRequest pedido) {
+        try {
+
+            return ResponseEntity
+                    .created(null)
+                    .body(pedidoService.criarPedidoCompleto(pedido));
+        } catch (Exception e){
+
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

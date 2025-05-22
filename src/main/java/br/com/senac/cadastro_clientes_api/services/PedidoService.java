@@ -1,12 +1,14 @@
 package br.com.senac.cadastro_clientes_api.services;
 
-import br.com.senac.cadastro_clientes_api.entities.Clientes;
-import br.com.senac.cadastro_clientes_api.entities.Enderecos;
-import br.com.senac.cadastro_clientes_api.entities.Pedido;
+import br.com.senac.cadastro_clientes_api.controllers.dtos.ItemPedidoRequest;
+import br.com.senac.cadastro_clientes_api.controllers.dtos.PedidoItensRequest;
+import br.com.senac.cadastro_clientes_api.controllers.dtos.PedidoRequest;
+import br.com.senac.cadastro_clientes_api.entities.*;
 import br.com.senac.cadastro_clientes_api.exceptions.PertenceAOutroCliente;
 import br.com.senac.cadastro_clientes_api.exceptions.RegistroNaoEncontrado;
 import br.com.senac.cadastro_clientes_api.repository.ClientesRepository;
 import br.com.senac.cadastro_clientes_api.repository.EnderecosRepository;
+import br.com.senac.cadastro_clientes_api.repository.PedidoItemRepository;
 import br.com.senac.cadastro_clientes_api.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,9 @@ public class PedidoService {
     private EnderecosRepository enderecosRepository;
     @Autowired
     private ClientesRepository clientesRepository;
+
+    @Autowired
+    private PedidoItemRepository pedidoItemRepository;
 
     public Pedido cadastrarPedido(Pedido pedido) throws RegistroNaoEncontrado {
 
@@ -137,6 +142,49 @@ public class PedidoService {
     }
 
 
+    public Pedido criarPedidoCompleto(PedidoItensRequest pedidos) throws RegistroNaoEncontrado, RegistroNaoEncontrado, RegistroNaoEncontrado {
+
+        Pedido pedidoPersist = new Pedido();
+
+
+        Clientes cliente = new Clientes();
+        cliente.setId(pedidos.getClienteId());
+
+
+        Enderecos enderecos = new Enderecos();
+        enderecos.setId(pedidos.getEnderecoId());
+
+
+        pedidoPersist.setDataCriacao(pedidos.getDataCriacao().atStartOfDay());
+        pedidoPersist.setValorTotal(pedidos.getValorTotal());
+        pedidoPersist.setCliente(cliente);
+        pedidoPersist.setEndereco(enderecos);
+
+
+        Pedido pedidoResult = this.cadastrarPedido(pedidoPersist);
+
+
+        for (ItemPedidoRequest itemDto : pedidos.getPedidoItens()){
+
+            PedidoItem item = new PedidoItem();
+            item.setPedido(pedidoResult);
+
+
+            Produto produto = new Produto();
+            produto.setId(itemDto.getProdutoId());
+            item.setProduto(produto);
+
+
+            item.setQuantidade(itemDto.getQuantidade());
+            item.setValorUnitario(itemDto.getValorUnitario());
+
+
+            pedidoItemRepository.save(item);
+        }
+
+
+        return pedidoResult;
+    }
 
 
 }
